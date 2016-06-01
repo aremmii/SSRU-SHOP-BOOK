@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
@@ -20,13 +21,12 @@ import com.squareup.okhttp.Response;
 import com.squareup.picasso.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 public class ProductListView extends AppCompatActivity {
     //Explicit
     private TextView nameTextView, surnameTextView, moneyTextView;
     private ListView listView;
-    private String[] loginStrings, nameStrings, priceStrings,
-            coverStrings, eBookStrings, e;
+    private String[] loginStrings, nameStrings, pricStrings,
+            coverStrings, eBookStrings;
     private String urlJSON = "http://swiftcodingthai.com/ssru/get_product.php";
 
     @Override
@@ -85,24 +85,24 @@ public class ProductListView extends AppCompatActivity {
             try {
                 JSONArray jsonArray = new JSONArray(s);
                 nameStrings = new String[jsonArray.length()];
-                priceStrings = new String[jsonArray.length()];
+                pricStrings = new String[jsonArray.length()];
                 coverStrings = new String[jsonArray.length()];
                 eBookStrings = new String[jsonArray.length()];
                 for (int i=0 ; i<jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     nameStrings[i] = jsonObject.getString("Name");
-                    priceStrings[i] = jsonObject.getString("Price");
+                    pricStrings[i] = jsonObject.getString("Price");
                     coverStrings[i] = jsonObject.getString("Cover");
                     eBookStrings[i] = jsonObject.getString("Ebook");
                 } //for
                 final MyAdapter myAdapter = new MyAdapter(context, nameStrings,
-                        priceStrings, coverStrings);
+                        pricStrings, coverStrings);
                 listView.setAdapter(myAdapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long id) {
-                        if (checkMoney(priceStrings[i])) {
-                            confirmDialog(nameStrings[i], priceStrings[i]);
+                        if (checkMoney(pricStrings[i])) {
+                            confirmDialog(nameStrings[i], pricStrings[i], eBookStrings[i]);
                         } else {
                             MyAlert myAlert = new MyAlert();
                             myAlert.myDialog(context, "เงินไม่พอ", "กรุณาเลือกเล่มใหม่");
@@ -123,13 +123,14 @@ public class ProductListView extends AppCompatActivity {
             }
         }
     } //Syn Class
-    private void confirmDialog(String nameString, String priceString) {
-
+    private void confirmDialog(final String nameString,
+                               final String pricString,
+                               final String eBookString) {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
         builder.setIcon(R.drawable.icon_myaccount);
         builder.setCancelable(false);
         builder.setTitle("Confirm Order");
-        builder.setMessage(nameString + " ราคา " + priceStrings + " THB . " + "\n" + "จริง ๆ หรือ ? ");
+        builder.setMessage(nameString + " ราคา " + pricString + " THB. " + "\n" + "จริงๆ หรือ ? ");
         builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
@@ -138,14 +139,16 @@ public class ProductListView extends AppCompatActivity {
         });
         builder.setPositiveButton("Order", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(DialogInterface dialog, int i) {
+                Intent intent = new Intent(ProductListView.this, ReadPDF.class);
+                intent.putExtra("Login", loginStrings);
+                intent.putExtra("NameBook", nameString);
+                intent.putExtra("PriceBook", pricString);
+                intent.putExtra("urlEbook", eBookString);
+                startActivity(intent);
                 dialog.dismiss();
             }
         });
         builder.show();
-
-    }   //confirm
-
-
-
+    } //confirm
 }   // Main Class

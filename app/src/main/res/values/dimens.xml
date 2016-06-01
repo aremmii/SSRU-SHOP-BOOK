@@ -6,5 +6,7 @@
     <dimen name="h1">30sp</dimen>
     <dimen name="h2">15sp</dimen>
     <dimen name="icon">200dp</dimen>
+    <dimen name="iconbook">120dp</dimen>
+    <dimen name="heightbook">150dp</dimen>
 
 </resources>
